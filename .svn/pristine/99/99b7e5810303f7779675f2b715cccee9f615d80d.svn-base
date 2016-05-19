@@ -1,0 +1,105 @@
+package com.deivydas.voroneckis.database;
+
+import com.deivydas.voroneckis.domain.Room;
+import java.util.ArrayList;
+import java.util.UUID;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import javax.persistence.Query;
+import com.deivydas.voroneckis.database.IRoomDatabase;
+import java.util.List;
+import javax.persistence.EntityTransaction;
+
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+/**
+ *
+ * @author vdeiv
+ */
+public class SqlRoomDatabase implements IRoomDatabase {
+
+    private EntityManagerFactory factory;
+    private EntityManager manager;
+    private EntityTransaction transaction;
+
+    public SqlRoomDatabase(String name) throws DatabaseException{
+        try {
+            factory = Persistence.createEntityManagerFactory(name);
+            manager = factory.createEntityManager();
+            transaction = manager.getTransaction();
+        } catch (Exception e) {
+            throw new DatabaseException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void closeConnection() throws DatabaseException {
+        try {
+            manager.close();
+            factory.close();
+        } catch (Exception e) {
+            throw new DatabaseException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void add(Room room) throws DatabaseException {
+        try {
+            transaction.begin();
+            manager.persist((Room) room);
+            manager.flush();
+            transaction.commit();
+        } catch (Exception e) {
+            transaction.rollback();
+            throw new DatabaseException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void update(Room room) throws DatabaseException {
+        try {
+            transaction.begin();
+            manager.merge(room);
+            manager.flush();
+            transaction.commit();
+        } catch (Exception e) {
+            transaction.rollback();
+            throw new DatabaseException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public Room getRoomById(long id) {
+        return manager.find(Room.class, id);
+    }
+
+    @Override
+    public void delete(long id) throws DatabaseException {
+        try {
+            transaction.begin();
+            Room room = manager.find(Room.class, id);
+            manager.remove(room);
+            manager.flush();
+            transaction.commit();
+        } catch (Exception e) {
+            transaction.rollback();
+            throw new DatabaseException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public List<Room> read() throws DatabaseException {
+        try {
+            Query query = manager.createQuery("select s from Room s"); //why select s
+            List<Room> rooms = (List<Room>) query.getResultList();
+            return rooms;
+        } catch (Exception e) {
+            throw new DatabaseException(e.getMessage(), e);
+        }
+    }
+
+}

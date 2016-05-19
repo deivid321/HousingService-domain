@@ -1,0 +1,45 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.deivydas.voroneckis.rest;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import java.util.List;
+
+/**
+ *
+ * @author vdeiv
+ */
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class Geocode {
+
+    public Geocode(){
+        
+    }
+    private List<Result> results;
+
+    public List<Result> getResults() {
+        return results;
+    }
+
+    public void setResults(List<Result> results) {
+        this.results = results;
+    }
+
+    
+
+    /*
+public class Geocode {
+
+    public geometryf geomet;
+
+    public List<geometry> getResults() {
+        return Result;
+    }
+
+    public void setResults(List<geometry> Result) {
+        this.Result = Result;
+    }   */
+}

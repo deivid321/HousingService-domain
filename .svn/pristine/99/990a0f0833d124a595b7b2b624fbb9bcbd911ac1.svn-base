@@ -1,0 +1,54 @@
+package com.deivydas.voroneckis.r0646372;
+
+
+import java.util.List;
+
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+/**
+ *
+ * @author vdeiv
+ */
+public class Room {
+    private List<Student> studentList;
+    public int area;
+    public String street;
+    public int houseNumber;
+    public int roomNumber;
+    private boolean free;
+    private int maxStudents;
+    
+    public void setOccupationOfRoom(boolean free){
+        this.free = free;
+    }
+    
+    public void SetNumberOfMaxStudents(int maxStudents){
+        this.maxStudents = maxStudents;
+    }
+    
+    public int SettleNewStudent(Student newStudent){
+        if (studentList.size()<maxStudents-1){
+            studentList.add(newStudent);
+            free = false;
+            return 1;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+   
+    public void UnSettleStudent(Student outStudent){
+        studentList.remove(outStudent);
+        if (studentList.size()==0) free = true;
+    }
+    
+    public int FreeSpace(){
+        return maxStudents - studentList.size();
+    }
+
+}

@@ -1,0 +1,184 @@
+package com.deivydas.voroneckis.service;
+
+import com.deivydas.voroneckis.database.IStudentDatabase;
+import com.deivydas.voroneckis.domain.Room;
+import com.deivydas.voroneckis.domain.Student;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import com.deivydas.voroneckis.database.DatabaseException;
+import com.deivydas.voroneckis.database.IRoomDatabase;
+import com.deivydas.voroneckis.rest.Location;
+import com.deivydas.voroneckis.rest.LocationService;
+
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+/**
+ *
+ * @author vdeiv
+ */
+public class HousingFacade implements IHousingFacade {
+
+    private static IRoomDatabase houseDatabase;
+    private static IStudentDatabase studentDatabase;
+    LocationService locationService = new LocationService();
+
+    public HousingFacade(String databaseType) {
+        HouseFactory housingFactory = new HouseFactory(databaseType);
+        StudentFactory studentFactory = new StudentFactory(databaseType);
+        houseDatabase = housingFactory.getHouseDatabase();
+        studentDatabase = studentFactory.getStudentDatabase();
+    }
+
+    @Override
+    public void addRoom(Room room) {
+        Location location = locationService.getLocation(room.getStreet(), room.getHouseNumber());
+        room.setCoordinates(location);
+        houseDatabase.add(room);
+        for (Student student : room.getStudentList()) {
+            student.setRoom(room);
+        }
+        for (Student student : room.getStudentList()) {
+            studentDatabase.update(student);
+        }
+    }
+    
+    @Override
+    public void updateRoom(Room room) {
+        Location location = locationService.getLocation(room.getStreet(), room.getHouseNumber());
+        room.setCoordinates(location);
+        Room roomOld = houseDatabase.getRoomById(room.getId());
+        for (Student student : roomOld.getStudentList()) {
+            student.setRoom(null);
+        }
+        for (Student student : roomOld.getStudentList()) {
+            studentDatabase.update(student);
+        }
+        for (Student student : room.getStudentList()) {
+            student.setRoom(room);
+        }       
+        for (Student student : room.getStudentList()) {
+            studentDatabase.update(student);
+        }
+        houseDatabase.update(room);
+    }
+
+    @Override
+    public List<Room> getRoomsList() {
+        try {
+            return houseDatabase.read();
+        } catch (DatabaseException ex) {
+            Logger.getLogger(HousingFacade.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+
+    @Override
+    public void removeRoom(Room room) {
+        for (Student student : room.getStudentList()) {
+            student.setRoom(null);
+        }
+        try {
+            for (Student student : room.getStudentList()) {
+                studentDatabase.update(student);
+            }
+            houseDatabase.delete(room.getId());
+        } catch (DatabaseException ex) {
+            Logger.getLogger(HousingFacade.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public Room getRoom(long id) {
+        return houseDatabase.getRoomById(id);
+    }
+
+    @Override
+    public void addStudent(Student student) {
+        Room room = student.getRoom();
+        studentDatabase.add(student);
+        if (room != null) {    //settle to new room
+            room.settleNewStudent(student);
+            houseDatabase.update(room);
+        }
+    }
+
+    @Override
+    public void removeStudent(Student student) {
+        Room room = student.getRoom();
+        if (room != null) {
+            room.unsettleStudent(student);
+            houseDatabase.update(room);
+        }
+        studentDatabase.delete(student.getId());
+    }
+
+    @Override
+    public void updateStudent(Student student) {
+        Room roomOld = null, roomNew = null;
+        Student studentOld = studentDatabase.getStudentById(student.getId());
+        if (studentOld.getRoom() != null) {              //remove from old room
+            roomOld = HousingFacade.houseDatabase.getRoomById(studentOld.getRoom().getId());
+            roomOld.unsettleStudent(studentOld);
+        }
+        if (student.getRoom() != null) {    //settle to new room
+            roomNew = HousingFacade.houseDatabase.getRoomById(student.getRoom().getId());
+            roomNew.settleNewStudent(student);
+        }
+        if (roomOld != null) {
+            houseDatabase.update(roomOld);
+        }
+        if (roomNew != null) {
+            houseDatabase.update(roomNew);
+        }
+        studentDatabase.update(student);
+    }
+
+    @Override
+    public List<Student> getStudentsList() {
+        try {
+            return studentDatabase.read();
+        } catch (DatabaseException ex) {
+            Logger.getLogger(HousingFacade.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+
+    @Override
+    public Student getStudent(long id) {
+        return studentDatabase.getStudentById(id);
+    }
+
+    @Override
+    public void addStudentToRoom(long roomId, long studentId) {
+        Room room = houseDatabase.getRoomById(roomId);
+        Student student = studentDatabase.getStudentById(studentId);
+        room.settleNewStudent(student);
+    }
+
+    @Override
+    public void unSettleStudentFromRoom(long roomId, long studentId) {
+        Room room = houseDatabase.getRoomById(roomId);
+        Student student = studentDatabase.getStudentById(studentId);
+        room.unsettleStudent(student);
+    }
+
+    @Override
+    public int numberOfFreeSpace(long roomId) {
+        Room room = houseDatabase.getRoomById(roomId);
+        return room.getFreeSpace();
+    }
+
+    @Override
+    public boolean isRoomFree(long roomId) {
+        Room room = houseDatabase.getRoomById(roomId);
+        return room.isFree();
+    }
+
+    public void closeConnection() throws DatabaseException {
+        houseDatabase.closeConnection();
+        studentDatabase.closeConnection();
+    }
+}

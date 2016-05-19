@@ -1,0 +1,84 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.deivydas.voroneckis.database;
+
+import com.deivydas.voroneckis.database.IStudentDatabase;
+import com.deivydas.voroneckis.domain.Student;
+import java.util.ArrayList;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+
+/**
+ *
+ * @author vdeiv
+ */
+public class SqlStudentDatabase implements IStudentDatabase {
+
+    private EntityManagerFactory factory;
+    private EntityManager manager;
+
+    public SqlStudentDatabase(String name) {
+        factory = Persistence.createEntityManagerFactory(name);
+        manager = factory.createEntityManager();
+    }
+
+    public void closeConnection() throws DatabaseException {
+        try {
+            manager.close();
+            factory.close();
+        } catch (Exception e) {
+            throw new DatabaseException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public ArrayList<Student> read() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void add(Student student) {
+        try {
+            manager.getTransaction().begin();
+            manager.persist(student);
+            manager.flush();
+            manager.getTransaction().commit();
+            // return r.getId();
+        } catch (Exception e) {
+            //throw new DatabaseException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void delete(long id) {
+        manager.getTransaction().begin();
+        Student student = manager.find(Student.class, id);
+        manager.remove(student);
+        manager.flush();
+        manager.getTransaction().commit();
+    }
+
+    @Override
+    public void update(Student student) {
+        try {
+            manager.getTransaction().begin();
+            manager.persist(student);
+            manager.flush();
+            manager.getTransaction().commit();
+            // return r.getId();
+        } catch (Exception e) {
+            //throw new DatabaseException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public Student getStudentById(long id) {
+        manager.getTransaction().begin();
+        return manager.find(Student.class, id);
+    }
+
+}

@@ -1,0 +1,32 @@
+package Testing.Package;
+
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+import com.deivydas.voroneckis.r0646372.*;
+import static org.junit.Assert.assertEquals;
+import org.junit.Before;
+import org.junit.Test;
+/**
+ *
+ * @author vdeiv
+ */
+public class HousingFacadeTest {
+    private Room room;
+    @Before
+    public void setUp(){
+        System.out.println("The tests are starting");
+        room = new Room();
+    }
+    
+    @Test
+    public void addInfoToRoomIsCorrectlyAdded(){
+        HousingFacade housingFacade = new HousingFacade(false);
+        housingFacade.addRoom(room);
+        housingFacade.addInfoToRoom(room, 15, "BrusselsStraat", 20,14, true, 2);
+        assertEquals(15, room.area, 0);
+    }
+    
+}

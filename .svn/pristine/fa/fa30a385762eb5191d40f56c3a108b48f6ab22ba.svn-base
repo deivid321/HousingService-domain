@@ -1,0 +1,87 @@
+package com.deivydas.voroneckis.database;
+
+import com.deivydas.voroneckis.database.IHouseDatabase;
+import com.deivydas.voroneckis.domain.Room;
+import java.util.ArrayList;
+import java.util.UUID;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import javax.persistence.Query;
+
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+/**
+ *
+ * @author vdeiv
+ */
+public class SqlRoomDatabase implements IHouseDatabase {
+
+    private EntityManagerFactory factory;
+    private EntityManager manager;
+
+    public SqlRoomDatabase(String name) {
+        factory = Persistence.createEntityManagerFactory(name);
+        manager = factory.createEntityManager();
+    }
+
+    public void closeConnection() throws DatabaseException {
+        try {
+            manager.close();
+            factory.close();
+        } catch (Exception e) {
+            throw new DatabaseException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void add(Room room){ //TODO Exceptions
+        try {
+            manager.getTransaction().begin();
+            manager.persist(room);
+            manager.flush();
+            manager.getTransaction().commit();
+            // return r.getId();
+        } catch (Exception e) {
+            //throw new DatabaseException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void update(Room room) {
+        try {
+            manager.getTransaction().begin();
+            manager.persist(room);
+            manager.flush();
+            manager.getTransaction().commit();
+            // return r.getId();
+        } catch (Exception e) {
+            //throw new DatabaseException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public Room getRoomById(long id) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void delete(long id) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public ArrayList<Room> read() {
+        try {
+            Query query = manager.createQuery("select s from Rooms s");
+            return (ArrayList<Room>) query.getResultList();
+        } catch (Exception e) {
+
+        };
+        return null;//TODO
+    }
+
+}

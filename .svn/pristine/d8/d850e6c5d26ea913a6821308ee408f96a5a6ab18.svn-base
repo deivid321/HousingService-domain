@@ -1,0 +1,25 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package ui;
+
+import com.deivydas.voroneckis.domain.Room;
+import com.deivydas.voroneckis.service.HousingFacade;
+import com.deivydas.voroneckis.service.IHousingFacade;
+
+/**
+ *
+ * @author vdeiv
+ */
+public class TestFacade {
+
+    public static void main(String[] args) {//TODO Exceptions
+        Room room = new Room();
+        IHousingFacade facade = new HousingFacade("JSP");
+        facade.addRoom(room);
+        System.out.print(facade.getRoomsList());
+        
+    }
+}

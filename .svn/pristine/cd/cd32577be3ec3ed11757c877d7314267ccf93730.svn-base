@@ -1,0 +1,25 @@
+package com.deivydas.voroneckis.r0646372;
+
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+/**
+ *
+ * @author vdeiv
+ */
+public class Test {
+    public static void main(String[] args) {
+        HousingFacade housing = new HousingFacade(false);
+        Room room = new Room();
+        room.free = true;
+        room.area = 12;
+        room.roomNumber = 10;
+        room.street = "Brusselsstraat";
+        room.houseNumber = 15;
+        housing.addRoom(room);
+        
+    }
+}

@@ -1,0 +1,146 @@
+package com.deivydas.voroneckis.service;
+
+import com.deivydas.voroneckis.database.IStudentDatabase;
+import com.deivydas.voroneckis.domain.Room;
+import com.deivydas.voroneckis.domain.Student;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import com.deivydas.voroneckis.database.DatabaseException;
+import com.deivydas.voroneckis.database.IRoomDatabase;
+
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+/**
+ *
+ * @author vdeiv
+ */
+public class HousingFacade implements IHousingFacade {
+
+    private static IRoomDatabase houseDatabase;
+    private static IStudentDatabase studentDatabase;
+
+    public HousingFacade(String databaseType) {
+        HouseFactory housingFactory = new HouseFactory(databaseType);
+        StudentFactory studentFactory = new StudentFactory(databaseType);
+        houseDatabase = housingFactory.getHouseDatabase();
+        studentDatabase = studentFactory.getStudentDatabase();
+    }
+
+    @Override
+    public void addRoom(Room room) {
+        try {
+            houseDatabase.add(room);
+        } catch (DatabaseException ex) {
+            Logger.getLogger(HousingFacade.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    @Override
+    public void updateRoom(Room room) {
+        try {
+            houseDatabase.update(room);
+        } catch (DatabaseException ex) {
+            Logger.getLogger(HousingFacade.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    @Override
+    public List<Room> getRoomsList() {
+        try {
+            return houseDatabase.read();
+        } catch (DatabaseException ex) {
+            Logger.getLogger(HousingFacade.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+
+    @Override
+    public void removeRoom(Room room) {
+        try {
+            houseDatabase.delete(room.getId());
+        } catch (DatabaseException ex) {
+            Logger.getLogger(HousingFacade.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public Room getRoom(long id) {
+        return houseDatabase.getRoomById(id);
+    }
+
+    @Override
+    public void addStudent(Student student) {
+        try {
+            studentDatabase.add(student);
+        } catch (DatabaseException ex) {
+            Logger.getLogger(HousingFacade.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    @Override
+    public void removeStudent(Student student) {
+        try {
+            studentDatabase.delete(student.getId());
+        } catch (DatabaseException ex) {
+            Logger.getLogger(HousingFacade.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    @Override
+    public void updateStudent(Student student) {
+        try {
+            studentDatabase.update(student);
+        } catch (DatabaseException ex) {
+            Logger.getLogger(HousingFacade.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    @Override
+    public List<Student> getStudentsList() {
+        try {
+            return studentDatabase.read();
+        } catch (DatabaseException ex) {
+            Logger.getLogger(HousingFacade.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+
+    @Override
+    public Student getStudent(long id) {
+        return studentDatabase.getStudentById(id);
+    }
+
+    @Override
+    public void addStudentToRoom(long roomId, long studentId) {
+        Room room = houseDatabase.getRoomById(roomId);
+        Student student = studentDatabase.getStudentById(studentId);
+        room.settleNewStudent(student);
+    }
+
+    @Override
+    public void unSettleStudentFromRoom(long roomId, long studentId) {
+        Room room = houseDatabase.getRoomById(roomId);
+        Student student = studentDatabase.getStudentById(studentId);
+        room.unsettleStudent(student);
+    }
+
+    @Override
+    public int numberOfFreeSpace(long roomId) {
+        Room room = houseDatabase.getRoomById(roomId);
+        return room.getFreeSpace();
+    }
+
+    @Override
+    public boolean isRoomFree(long roomId) {
+        Room room = houseDatabase.getRoomById(roomId);
+        return room.isFree();
+    }
+
+    public void closeConnection() throws DatabaseException {
+        houseDatabase.closeConnection();
+        studentDatabase.closeConnection();
+    }
+}

@@ -1,0 +1,85 @@
+package Testing.Package;
+
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+import com.deivydas.voroneckis.domain.Student;
+import com.deivydas.voroneckis.domain.NegativeOrNullNumberException;
+import com.deivydas.voroneckis.domain.Room;
+import com.deivydas.voroneckis.service.HousingFacade;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import org.junit.Before;
+import org.junit.Test;
+
+/**
+ *
+ * @author vdeiv
+ */
+public class HousingFacadeTest {
+
+    private Room room;
+    private Student student;
+    private HousingFacade housingFacade;
+
+    @Before
+    public void setUp() {
+        System.out.println("The tests are starting");
+        housingFacade = new HousingFacade();
+        room = new Room();
+        housingFacade.addRoom(room);
+        student = new Student();
+        housingFacade.addStudent(student);
+    }
+
+    @Test
+    public void roomIsCorrectlyAdded(){
+        assertTrue("The are not any rooms saved!", housingFacade.getRoomsList().size()>0);
+    }
+    
+    @Test
+    public void roomIsCorrectlyUpdated() throws NegativeOrNullNumberException{
+        room = housingFacade.getRoomsList().get(0);
+        room.SetNumberOfMaxStudents(3);
+        assertEquals(3, room.maxStudents);
+    }
+    
+    @Test
+    public void studentIsCorrectlyUpdated(){
+        student = housingFacade.getStudentsList().get(0);
+        student.name = "newName";
+        assertEquals("newName", student.name);
+    }
+    
+    @Test(expected = NegativeOrNullNumberException.class)
+    public void roomUpdationThrowsAnException() throws NegativeOrNullNumberException{
+        room = housingFacade.getRoomsList().get(0);
+        room.SetNumberOfMaxStudents(0);
+    }
+    
+    @Test
+    public void studentIsCorrectlyAdded(){
+        assertTrue("The are not any students saved!", housingFacade.getStudentsList().size()>0);
+    }
+    
+    @Test
+    public void studentIsCorrectlyAddedToRoom() {
+        housingFacade.addStudentToRoom(room.getId(), student.getId());
+        assertEquals(false, room.free);
+    }
+    
+    @Test
+    public void roomIsCorrectlyRemoved(){
+        housingFacade.removeRoom(room);
+        assertEquals(0, housingFacade.getRoomsList().size()); 
+    }
+    
+    @Test
+    public void studentIsCorrectlyRemoved(){
+        housingFacade.removeStudent(student);
+        assertEquals(0, housingFacade.getStudentsList().size()); 
+    }
+
+}

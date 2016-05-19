@@ -1,0 +1,95 @@
+package com.deivydas.voroneckis.r0646372;
+
+import java.util.List;
+import java.util.UUID;
+
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+/**
+ *
+ * @author vdeiv
+ */
+public class HousingFacade {
+
+    private IHouseDatabase houseDatabase;
+    private IStudentDatabase studentDatabase;
+
+    public HousingFacade(String databaseType) {
+        switch (databaseType) {
+            case "Sql":
+                this.houseDatabase = new SqlHouseDatabase();
+                this.studentDatabase = new SqlStudentDatabase();
+                break;
+            case "Fake":
+                this.houseDatabase = new HouseMemoryDatabase();
+                this.studentDatabase = new StudentMemoryDatabase();
+                break;
+        }
+    }
+
+    public void addRoom(Room room) {
+        houseDatabase.add(room);
+    }
+
+    public void updateRoom(Room room) {
+        houseDatabase.update(room);
+    }
+
+    public List<Room> getRoomsList() {
+        return houseDatabase.read();
+    }
+
+    public void removeRoom(Room room) {
+        houseDatabase.delete(room.getId());
+    }
+    
+    public Room getRoom(long id){
+        return houseDatabase.getRoomById(id);
+    }
+
+    public void addStudent(Student student) {
+        studentDatabase.add(student);
+    }
+
+    public void removeStudent(Student student) {
+        studentDatabase.delete(student.getId());
+    }
+    
+    public void updateStudent(Student student){
+        studentDatabase.update(student);
+    }
+    
+    public List<Student> getStudentsList(){
+        return studentDatabase.read();
+    }
+    
+    public Student getStudent(long id){
+        return studentDatabase.getStudentById(id);
+    }
+
+    public void addStudentToRoom(long roomId, long studentId) {
+        Room room = houseDatabase.getRoomById(roomId);
+        Student student = studentDatabase.getStudentById(studentId);
+        room.SettleNewStudent(student);
+    }
+
+    public void unSettleStudentFromRoom(long roomId, long studentId) {
+        Room room = houseDatabase.getRoomById(roomId);
+        Student student = studentDatabase.getStudentById(studentId);
+        room.UnSettleStudent(student);
+    }
+
+    public int numberOfFreeSpace(long roomId) {
+        Room room = houseDatabase.getRoomById(roomId);
+        return room.getFreeSpace();
+    }
+
+    public boolean isRoomFree(long roomId) {
+        Room room = houseDatabase.getRoomById(roomId);
+        return room.free;
+    }
+
+}

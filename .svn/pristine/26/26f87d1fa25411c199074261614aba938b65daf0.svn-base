@@ -1,0 +1,21 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.deivydas.voroneckis.database;
+
+import com.deivydas.voroneckis.domain.Student;
+import java.util.ArrayList;
+
+/**
+ *
+ * @author vdeiv
+ */
+public interface IStudentDatabase {
+   ArrayList<Student> read();
+   void add(Student student);
+   void delete(long id);
+   void update(Student student);
+   Student getStudentById(long id);
+}

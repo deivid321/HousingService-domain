@@ -1,0 +1,46 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.deivydas.voroneckis.service;
+
+import com.deivydas.voroneckis.domain.DomainException;
+import com.deivydas.voroneckis.database.HouseMemoryDatabase;
+import com.deivydas.voroneckis.database.IHouseDatabase;
+import com.deivydas.voroneckis.database.IStudentDatabase;
+import com.deivydas.voroneckis.database.SqlHouseDatabase;
+import com.deivydas.voroneckis.database.SqlStudentDatabase;
+import com.deivydas.voroneckis.database.StudentMemoryDatabase;
+
+/**
+ *
+ * @author vdeiv
+ */
+public class HousingFactory {
+    
+   private IHouseDatabase houseDatabase;
+   private IStudentDatabase studentDatabase;
+   
+   public HousingFactory(String databaseType){
+       switch (databaseType) {
+            case "Sql":
+                houseDatabase = new SqlHouseDatabase();
+                studentDatabase = new SqlStudentDatabase();
+                break;
+            case "Fake":
+                houseDatabase = new HouseMemoryDatabase();
+                studentDatabase = new StudentMemoryDatabase();
+                break;
+            default: throw new DomainException("The database type was not recognized");
+        }
+   }
+   
+  public IHouseDatabase getHouseDatabase(){
+      return houseDatabase;
+  }
+  
+  public IStudentDatabase getStudentDatabase(){
+      return studentDatabase;
+  }
+}

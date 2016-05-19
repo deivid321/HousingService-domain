@@ -1,0 +1,131 @@
+package com.deivydas.voroneckis.domain;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import java.util.UUID;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.OneToMany;
+
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+/**
+ *
+ * @author vdeiv
+ */
+@javax.persistence.Entity
+public class Room extends Entity{
+
+    @OneToMany(mappedBy="room")
+    private List<Student> studentList = new ArrayList<Student>();
+    
+    private String street;
+    private int houseNumber;
+    private int roomNumber; 
+    private boolean free=true;
+    private int maxStudents=3;
+    
+    @Enumerated(EnumType.STRING)
+    private Neighborhood neighborhood;
+    
+    public List<Student> getStudentList() {
+        return studentList;
+    }
+
+    public void setStudentList(List<Student> studentList) {
+        this.studentList = studentList;
+    }
+    private int area;
+
+    public int getArea() {
+        return area;
+    }
+
+    public void setArea(int area) {
+        this.area = area;
+    }
+
+    public int getHouseNumber() {
+        return houseNumber;
+    }
+
+    public void setHouseNumber(int houseNumber) {
+        this.houseNumber = houseNumber;
+    }
+
+    public int getRoomNumber() {
+        return roomNumber;
+    }
+
+    public void setRoomNumber(int roomNumber) {
+        this.roomNumber = roomNumber;
+    }
+
+    public boolean isFree() {
+        return free;
+    }
+
+    public void setFree(boolean free) {
+        this.free = free;
+    }
+
+    public int getMaxStudents() {
+        return maxStudents;
+    }
+
+    public void setMaxStudents(int maxStudents) {
+        this.maxStudents = maxStudents;
+    }
+
+    public Neighborhood getNeighborhood() {
+        return neighborhood;
+    }
+
+    public void setNeighborhood(Neighborhood neighborhood) {
+        this.neighborhood = neighborhood;
+    }
+    
+    public void setStreet(String street) {
+        this.street = street;
+    }
+    
+    public String getStreet() {
+        return street;
+    }
+
+    public void setOccupationOfRoom(boolean free) {
+        this.free = free;
+    }
+
+    public void setNumberOfMaxStudents(int maxStudents) throws NegativeOrNullNumberException {
+        if (maxStudents<=1) throw new NegativeOrNullNumberException();
+        this.maxStudents = maxStudents;
+    }
+
+    public int settleNewStudent(Student newStudent) {
+        if (studentList.size() < maxStudents) {
+            studentList.add(newStudent);
+            newStudent.setRoom(this);
+            free = false;
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
+    public void unsettleStudent(Student outStudent) {
+        studentList.remove(outStudent);
+        if (studentList.size() == 0) {
+            free = true;
+        }
+    }
+
+    public int getFreeSpace() {
+        return maxStudents - studentList.size();
+    }
+
+}
